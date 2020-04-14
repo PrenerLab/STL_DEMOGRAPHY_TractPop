@@ -1,0 +1,126 @@
+---
+title: "Build Race Estimate Data - SQL"
+author: "Christopher Prener, Ph.D, Carter Hanford, M.A"
+date: '(`r format(Sys.time(), "%B %d, %Y")`)'
+output: 
+  github_document: default
+  html_notebook: default 
+---
+
+## Introduction
+This notebook creates race estimates for St. Louis County and St. Louis City and passes the data to a SQL database. This notebook pulls tract level data from [Social Explorer](http://socialexplorer.com) and merges it with census tract-level shapefiles from the IPUMS' [NHGIS](https://www.nhgis.org) database to create race estimates by census tract for St. Louis County and St. Louis City (1940-2017).
+
+## Dependencies
+This notebook requires a number of different `R` packages:
+
+```{r load-packages}
+# tidyverse packages
+library(dplyr)         # data wrangling
+library(readr)         # working with csv data
+library(stringr)       # string tools
+library(tidyr)         # data manipulation
+
+# spatial packages
+library(areal)         # interpolation
+library(sf)            # working with spatial data
+library(tidycensus)    # census api access
+library(tigris)        # tiger/line api access
+
+# other packages
+library(here)          # file path management
+library(testthat)      # unit testing
+```
+
+We also use a function for unit testing ID numbers:
+
+```{r load-functions}
+# load function
+source(here("source", "unique_id.R"))
+```
+
+We'll also go ahead and load the 2010 census tract shapefile for interpolation:
+
+```{r tracts}
+# read in 2010 census tract
+stl_tract10 <- tracts(29, county = c(510, 189), year = 2010, class = "sf")
+```
+
+### 1940 
+
+```{r}
+# read in tract level population estimates
+read_csv(here("data", "raw", "IPUMS", "race", "nhgis0030_ds76_1940_tract.csv")) -> race40
+
+# clean up raw data
+race40 %>%
+  filter(STATE == "Missouri") %>%
+  filter(COUNTY == "St Louis" | COUNTY == "St Louis City") %>%
+  select(-STATE, -STATEA, -PRETRACTA, -AREANAME) %>%
+  unite(TRACTID, TRACTA, POSTTRCTA, sep ="", na.rm = FALSE) %>%
+  mutate(county = paste0(COUNTYA, "-", TRACTID)) %>%
+  rename(countyID = county,
+         year = YEAR,
+         county = COUNTY,
+         white40 = BUQ001,
+         black40 = BUQ002) %>%
+  mutate(TRACTID = str_pad(string = TRACTID, width = 5, side = "left", pad = "0")) -> race40 
+
+# clean data
+race40 %>%
+  select(-COUNTYA) %>%
+  select(year, county, TRACTID, countyID, white40, black40, GISJOIN) %>%
+  mutate(TRACTID = str_replace(string = TRACTID, pattern = "NA$", replacement = "")) %>%
+  mutate(countyID = str_replace(string = countyID, pattern = "NA$", replacement = "")) %>%
+  rename(tractID = TRACTID) -> race40
+
+# read in census tract shapefile
+st_read(here("data", "spatial", "STL_DEMOGRAPHICS_tracts40", "STL_BOUNDARY_1940_tracts.geojson"),
+        stringsAsFactors = FALSE) %>%
+  st_transform(crs = 26915) -> stl40
+
+# join data to census tract shapefile
+stlrace40 <- left_join(stl40, race40, by = "GISJOIN")
+stlrace40 %>%
+  select(year, county, tractID, countyID, white40, black40, geometry) -> stlrace40
+
+# interpolate to 2010 census tract
+stl_tract10 %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID10) %>%
+  aw_interpolate(tid = GEOID10, source = stlrace40, sid = countyID,
+                 weight = "total", output = "tibble", 
+                 extensive = "white40") -> tract_white40
+
+stl_tract10 %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID10) %>%
+  aw_interpolate(tid = GEOID10, source = stlrace40, sid = countyID,
+                 weight = "total", output = "tibble", 
+                 extensive = "black40") -> tract_black40
+
+# clean up data frame
+tract_white40 %>%
+  select(GEOID10, white40) %>%
+  rename(GEOID = GEOID10,
+         white = white40) %>%
+  na.omit() -> white40
+#white40$white <- round(white40$white, 0)
+
+tract_black40 %>%
+  select(GEOID10, black40) %>%
+  rename(GEOID = GEOID10,
+         black = black40) %>%
+  na.omit() -> black40
+#black40$black <- round(black40$black, 0)
+
+race40 <- left_join(white40, black40, by = "GEOID")
+race40$year <- rep(1940, nrow(race40)) # adds a year column
+race40 %>%
+  select(year, GEOID, white, black) -> race40
+
+rm(tract_white40, tract_black40, stl40, stlrace40, white40, black40)
+```
+
+
+
+
