@@ -13,7 +13,7 @@ This notebook creates race estimates for St. Louis County and St. Louis City and
 ## Dependencies
 This notebook requires a number of different `R` packages:
 
-```{r load-packages}
+```{r load-packages, results = 'hide'}
 # tidyverse packages
 library(dplyr)         # data wrangling
 library(readr)         # working with csv data
@@ -104,22 +104,395 @@ tract_white40 %>%
   rename(GEOID = GEOID10,
          white = white40) %>%
   na.omit() -> white40
-#white40$white <- round(white40$white, 0)
 
 tract_black40 %>%
   select(GEOID10, black40) %>%
   rename(GEOID = GEOID10,
          black = black40) %>%
   na.omit() -> black40
-#black40$black <- round(black40$black, 0)
 
 race40 <- left_join(white40, black40, by = "GEOID")
+race40 %>%
+  select(GEOID, white, black) -> race40
+
+# pivot race column from wide to long
+race40 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race40
 race40$year <- rep(1940, nrow(race40)) # adds a year column
 race40 %>%
-  select(year, GEOID, white, black) -> race40
+  select(year, GEOID, race, count) -> race40
 
+# clean up environment
 rm(tract_white40, tract_black40, stl40, stlrace40, white40, black40)
 ```
+
+### 1950 
+
+```{r}
+# read in tract level population estimates
+read_csv(here("data", "raw", "IPUMS", "race", "nhgis0030_ds82_1950_tract.csv")) -> race50
+
+# clean up raw data
+race50 %>%
+  filter(STATE == "Missouri") %>%
+  filter(COUNTY == "St Louis" | COUNTY == "St Louis City") %>%
+  select(-STATE, -STATEA, -PRETRACTA, -AREANAME) %>%
+  unite(TRACTID, TRACTA, POSTTRCTA, sep ="", na.rm = FALSE) %>%
+  mutate(county = paste0(COUNTYA, "-", TRACTID)) %>%
+  rename(countyID = county,
+         year = YEAR,
+         county = COUNTY,
+         white50 = B0J001,
+         black50 = B0J002,
+         other50 = B0J003) %>%
+  mutate(TRACTID = str_pad(string = TRACTID, width = 5, side = "left", pad = "0")) -> race50 
+
+# clean data
+race50 %>%
+  select(-COUNTYA) %>%
+  select(year, county, TRACTID, countyID, white50, black50, other50, GISJOIN) %>%
+  mutate(TRACTID = str_replace(string = TRACTID, pattern = "NA$", replacement = "")) %>%
+  mutate(countyID = str_replace(string = countyID, pattern = "NA$", replacement = "")) %>%
+  rename(tractID = TRACTID) -> race50
+
+# read in census tract shapefile
+st_read(here("data", "spatial", "STL_DEMOGRAPHICS_tracts50", "STL_BOUNDARY_1950_tracts.geojson"),
+        stringsAsFactors = FALSE) %>%
+  st_transform(crs = 26915) -> stl50
+
+# join data to census tract shapefile
+stlrace50 <- left_join(stl50, race50, by = "GISJOIN")
+stlrace50 %>%
+  select(year, county, tractID, countyID, white50, black50, other50, geometry) -> stlrace50
+
+# interpolate to 2010 census tract
+stl_tract10 %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID10) %>%
+  aw_interpolate(tid = GEOID10, source = stlrace50, sid = countyID,
+                 weight = "total", output = "tibble", 
+                 extensive = c("white50", "black50", "other50")) -> tract50
+
+# clean up data frame
+tract50 %>%
+  select(GEOID10, white50, black50, other50) %>%
+  rename(GEOID = GEOID10,
+         white = white50,
+         black = black50,
+         other = other50) %>%
+  na.omit() -> race50
+
+# pivot race column from wide to long
+race50 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race50
+race50$year <- rep(1950, nrow(race50)) # adds a year column
+race50 %>%
+  select(year, GEOID, race, count) -> race50
+
+# clean up environment
+rm(tract50, stl50, stlrace50)
+```
+
+### 1960 
+
+```{r}
+# read in tract level population estimates
+read_csv(here("data", "raw", "IPUMS", "race", "nhgis0030_ds92_1960_tract.csv")) -> race60
+
+# clean up raw data
+race60 %>%
+  filter(STATE == "Missouri") %>%
+  filter(COUNTY == "St Louis" | COUNTY == "St Louis City") %>%
+  select(-STATE, -STATEA, -PRETRACTA, -AREANAME) %>%
+  unite(TRACTID, TRACTA, POSTTRCTA, sep ="", na.rm = FALSE) %>%
+  mutate(county = paste0(COUNTYA, "-", TRACTID)) %>%
+  rename(countyID = county,
+         year = YEAR,
+         county = COUNTY,
+         white60 = B7B001,
+         black60 = B7B002,
+         other60 = B7B003) %>%
+  mutate(TRACTID = str_pad(string = TRACTID, width = 5, side = "left", pad = "0")) -> race60 
+
+# clean data
+race60 %>%
+  select(-COUNTYA) %>%
+  select(year, county, TRACTID, countyID, white60, black60, other60, GISJOIN) %>%
+  mutate(TRACTID = str_replace(string = TRACTID, pattern = "NA$", replacement = "")) %>%
+  mutate(countyID = str_replace(string = countyID, pattern = "NA$", replacement = "")) %>%
+  rename(tractID = TRACTID) -> race60
+
+# read in census tract shapefile
+st_read(here("data", "spatial", "STL_DEMOGRAPHICS_tracts60", "STL_BOUNDARY_1960_tracts.geojson"),
+        stringsAsFactors = FALSE) %>%
+  st_transform(crs = 26915) -> stl60
+
+# join data to census tract shapefile
+stlrace60 <- left_join(stl60, race60, by = "GISJOIN")
+stlrace60 %>%
+  select(year, county, tractID, countyID, white60, black60, other60, geometry) -> stlrace60
+
+# interpolate to 2010 census tract
+stl_tract10 %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID10) %>%
+  aw_interpolate(tid = GEOID10, source = stlrace60, sid = countyID,
+                 weight = "total", output = "tibble", 
+                 extensive = c("white60", "black60", "other60")) -> tract60
+
+# clean up data frame
+tract60 %>%
+  select(GEOID10, white60, black60, other60) %>%
+  rename(GEOID = GEOID10,
+         white = white60,
+         black = black60,
+         other = other60) %>%
+  na.omit() -> race60
+
+# pivot race column from wide to long
+race60 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race60
+race60$year <- rep(1960, nrow(race60)) # adds a year column
+race60 %>%
+  select(year, GEOID, race, count) -> race60
+
+# clean up environment
+rm(tract60, stl60, stlrace60)
+```
+
+### 1970 
+
+```{r}
+# read in tract level population estimates
+read_csv(here("data", "raw", "IPUMS", "race", "nhgis0030_ds98_1970_tract.csv")) -> race70
+
+# clean up raw data
+race70 %>%
+  filter(STATE == "Missouri") %>%
+  filter(COUNTY == "St Louis" | COUNTY == "St Louis City") %>%
+  select(-STATE, -STATEA, -AREANAME, -CTY_SUBA,
+         -PLACEA, -SCSAA, -SMSAA, -URB_AREAA, -BLOCKA, -CDA) %>%
+  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
+  rename(countyID = county,
+         year = YEAR,
+         county = COUNTY,
+         white70 = C0X001,
+         black70 = C0X002,
+         other70 = C0X003) -> race70 
+
+# clean
+race70 %>%
+  select(-COUNTYA) %>%
+  select(year, county, TRACTA, countyID, white70, black70, other70, GISJOIN) %>%
+  rename(tractID = TRACTA) -> race70
+
+# read in census tract shapefile
+st_read(here("data", "spatial", "STL_DEMOGRAPHICS_tracts70", "STL_BOUNDARY_1970_tracts.geojson"),
+        stringsAsFactors = FALSE) %>%
+  st_transform(crs = 26915) -> stl70
+
+# join data to census tract shapefile
+stlrace70 <- left_join(stl70, race70, by = "GISJOIN")
+stlrace70 %>%
+  select(year, county, tractID, countyID, white70, black70, other70, geometry) -> stlrace70
+
+# interpolate to 2010 census tract
+stl_tract10 %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID10) %>%
+  aw_interpolate(tid = GEOID10, source = stlrace70, sid = countyID,
+                 weight = "total", output = "tibble", 
+                 extensive = c("white70", 
+                               "black70", 
+                               "other70")) -> tract70
+
+# clean up data frame
+tract70 %>%
+  select(GEOID10, white70, black70, other70) %>%
+  rename(GEOID = GEOID10,
+         white = white70,
+         black = black70,
+         other = other70) %>%
+  na.omit() -> race70
+
+# pivot race column from wide to long
+race70 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race70
+race70$year <- rep(1970, nrow(race70)) # adds a year column
+race70 %>%
+  select(year, GEOID, race, count) -> race70
+
+# clean up environment
+rm(tract70, stl70, stlrace70)
+```
+
+### 1980 
+
+```{r}
+# read in tract level population estimates
+read_csv(here("data", "raw", "IPUMS", "race", "nhgis0030_ds104_1980_tract.csv")) -> race80
+
+# clean up raw data
+race80 %>%
+  filter(STATE == "Missouri") %>%
+  filter(COUNTY == "St Louis" | COUNTY == "St Louis City") %>%
+  select(-STATE, -STATEA, -AREANAME, -CTY_SUBA,
+         -PLACEA, -SCSAA, -SMSAA, -URB_AREAA, -BLOCKA, -CDA) %>%
+  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
+  mutate(other80 = C9D003 +
+                   C9D004 +
+                   C9D005 +
+                   C9D006 +
+                   C9D007 +
+                   C9D008 +
+                   C9D009 +
+                   C9D010 +
+                   C9D011 +
+                   C9D012 +
+                   C9D013 +
+                   C9D014 +
+                   C9D015) %>%
+  select(-C9D003, -C9D004, -C9D005, 
+         -C9D006, -C9D007, -C9D008, 
+         -C9D009, -C9D010, -C9D011, 
+         -C9D012, -C9D013, -C9D014, -C9D015) %>% 
+  rename(countyID = county,
+         year = YEAR,
+         county = COUNTY,
+         white80 = C9D001,
+         black80 = C9D002) -> race80 
+
+# clean
+race80 %>%
+  select(-COUNTYA) %>%
+  select(year, county, TRACTA, countyID, white80, black80, other80, GISJOIN) %>%
+  rename(tractID = TRACTA) -> race80
+
+# read in census tract shapefile
+st_read(here("data", "spatial", "STL_DEMOGRAPHICS_tracts80", "STL_BOUNDARY_1980_tracts.geojson"),
+        stringsAsFactors = FALSE) %>%
+  st_transform(crs = 26915) -> stl80
+
+# join data to census tract shapefile
+stlrace80 <- left_join(stl80, race80, by = "GISJOIN")
+stlrace80 %>%
+  select(year, county, tractID, countyID, white80, black80, other80, geometry) -> stlrace80
+
+# interpolate to 2010 census tract
+stl_tract10 %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID10) %>%
+  aw_interpolate(tid = GEOID10, source = stlrace80, sid = countyID,
+                 weight = "total", output = "tibble", 
+                 extensive = c("white80", 
+                               "black80", 
+                               "other80")) -> tract80
+
+# clean up data frame
+tract80 %>%
+  select(GEOID10, white80, black80, other80) %>%
+  rename(GEOID = GEOID10,
+         white = white80,
+         black = black80,
+         other = other80) %>%
+  na.omit() -> race80
+
+# pivot race column from wide to long
+race80 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race80
+race80$year <- rep(1980, nrow(race80)) # adds a year column
+race80 %>%
+  select(year, GEOID, race, count) -> race80
+
+# clean up environment
+rm(tract80, stl80, stlrace80)
+```
+
+### 1990 
+
+```{r}
+# read in tract level population estimates
+read_csv(here("data", "raw", "IPUMS", "race", "nhgis0030_ds120_1990_tract.csv")) -> race90
+
+# clean up raw data
+race90 %>%
+  filter(STATE == "Missouri") %>%
+  filter(COUNTY == "St Louis" | COUNTY == "St Louis City") %>%
+  select(-STATE, -STATEA, -CTY_SUBA,
+         -PLACEA, -BLOCKA, -ANRCA, -AIANHHA, -RES_ONLYA, -RES_TRSTA,
+         -TRUSTA, -BLCK_GRPA, -CDA, -C_CITYA, -DIVISIONA, -MSA_CMSAA, 
+         -PMSAA, -REGIONA, -URBRURALA, -URB_AREAA, 
+         -CD103A, -ANPSADPI) %>%
+  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
+  mutate(other90 = EUY003 +
+                   EUY004 +
+                   EUY005) %>%
+  select(-EUY003, -EUY004, -EUY005) %>% 
+  rename(countyID = county,
+         year = YEAR,
+         county = COUNTY,
+         white90 = EUY001,
+         black90 = EUY002) -> race90 
+
+# clean
+race90 %>%
+  select(-COUNTYA) %>%
+  select(year, county, TRACTA, countyID, white90, black90, other90, GISJOIN) %>%
+  rename(tractID = TRACTA) -> race90
+
+# read in 1990 census counts, clean
+get_decennial(geography = "tract", variable = "P0010001", year = 1990, state = 29, county = 510, geometry = TRUE) %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID, value) %>%
+  rename(pop90 = value) -> stlcity90
+
+get_decennial(geography = "tract", variable = "P0010001", year = 1990, state = 29, county = 189, geometry = TRUE) %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID, value) %>%
+  rename(pop90 = value) -> stlcounty90
+
+rbind(stlcity90, stlcounty90) -> stlrace90
+stlrace90 <- left_join(stlpop90, pop90, by = "pop90")
+
+# join data to census tract shapefile
+stlrace80 <- left_join(stl80, race80, by = "GISJOIN")
+stlrace80 %>%
+  select(year, county, tractID, countyID, white80, black80, other80, geometry) -> stlrace80
+
+# interpolate to 2010 census tract
+stl_tract10 %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID10) %>%
+  aw_interpolate(tid = GEOID10, source = stlrace80, sid = countyID,
+                 weight = "total", output = "tibble", 
+                 extensive = c("white80", 
+                               "black80", 
+                               "other80")) -> tract80
+
+# clean up data frame
+tract80 %>%
+  select(GEOID10, white80, black80, other80) %>%
+  rename(GEOID = GEOID10,
+         white = white80,
+         black = black80,
+         other = other80) %>%
+  na.omit() -> race80
+
+# pivot race column from wide to long
+race80 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race80
+race80$year <- rep(1980, nrow(race80)) # adds a year column
+race80 %>%
+  select(year, GEOID, race, count) -> race80
+
+# clean up environment
+rm(tract80, stl80, stlrace80, stlcity90, stlcounty90)
+```
+
+
+
+
+
 
 
 
