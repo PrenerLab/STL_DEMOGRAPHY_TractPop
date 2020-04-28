@@ -87,8 +87,8 @@ stlpop40 %>%
 stl_tract10 %>%
   st_transform(crs = 26915) %>%
   select(GEOID10) %>%
-  aw_interpolate(tid = GEOID10, source = stlpop40, sid = countyID,
-                 weight = "total", output = "tibble", 
+  aw_interpolate(tid = GEOID10, source = stlpop40, sid = tractID,
+                 weight = "sum", output = "tibble", 
                  extensive = "pop40") -> tract40
 
 # clean up data frame
@@ -144,8 +144,8 @@ stl50 %>%
 stl_tract10 %>%
   st_transform(crs = 26915) %>%
   select(GEOID10) %>%
-  aw_interpolate(tid = GEOID10, source = stlpop50, sid = countyID,
-                 weight = "total", output = "tibble", 
+  aw_interpolate(tid = GEOID10, source = stlpop50, sid = tractID,
+                 weight = "sum", output = "tibble", 
                  extensive = "pop50") -> tract50
 
 # clean up data frame
@@ -201,7 +201,7 @@ stl60 %>%
 stl_tract10 %>%
   st_transform(crs = 26915) %>%
   select(GEOID10) %>%
-  aw_interpolate(tid = GEOID10, source = stlpop60, sid = countyID,
+  aw_interpolate(tid = GEOID10, source = stlpop60, sid = tractID,
                  weight = "sum", output = "tibble", 
                  extensive = "pop60") -> tract60
 
@@ -258,7 +258,7 @@ stl70 %>%
 stl_tract10 %>%
   st_transform(crs = 26915) %>%
   select(GEOID10) %>%
-  aw_interpolate(tid = GEOID10, source = stlpop70, sid = countyID,
+  aw_interpolate(tid = GEOID10, source = stlpop70, sid = tractID,
                  weight = "sum", output = "tibble", 
                  extensive = "pop70") -> tract70
 
@@ -274,7 +274,6 @@ pop70$population <- round(pop70$population, 0)
 # clean up environment
 rm(stl70, stlpop70, tract70)
 ```
-
 
 ### 1980
 
@@ -316,7 +315,7 @@ stl80 %>%
 stl_tract10 %>%
   st_transform(crs = 26915) %>%
   select(GEOID10) %>%
-  aw_interpolate(tid = GEOID10, source = stlpop80, sid = countyID,
+  aw_interpolate(tid = GEOID10, source = stlpop80, sid = tractID,
                  weight = "sum", output = "tibble", 
                  extensive = "pop80") -> tract80
 
@@ -380,7 +379,7 @@ stlpop90 <- left_join(stlpop90, pop90, by = "pop90")
 stl_tract10 %>%
   st_transform(crs = 26915) %>%
   select(GEOID10) %>%
-  aw_interpolate(tid = GEOID10, source = stlpop90, sid = countyID,
+  aw_interpolate(tid = GEOID10, source = stlpop90, sid = tractID,
                  weight = "sum", output = "tibble", 
                  extensive = "pop90") -> tract90
 
@@ -394,7 +393,7 @@ tract90 %>%
 pop90$population <- round(pop90$population, 0)
 
 # clean up environment
-rm(stl80, stlpop80, tract80, stlcity90, stlcounty90)
+rm(stl90, stlpop90, tract90, stlcity90, stlcounty90)
 ```
 
 ### 2000
@@ -442,7 +441,7 @@ stlpop00 <- left_join(stlpop00, pop00, by = "pop00")
 stl_tract10 %>%
   st_transform(crs = 26915) %>%
   select(GEOID10) %>%
-  aw_interpolate(tid = GEOID10, source = stlpop00, sid = countyID,
+  aw_interpolate(tid = GEOID10, source = stlpop00, sid = tractID,
                  weight = "sum", output = "tibble", 
                  extensive = "pop00") -> tract00
 
