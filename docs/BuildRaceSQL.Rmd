@@ -455,9 +455,9 @@ rbind(stlcity90, stlcounty90) -> stlrace90
 stlrace90 <- left_join(stlpop90, pop90, by = "pop90")
 
 # join data to census tract shapefile
-stlrace80 <- left_join(stl80, race80, by = "GISJOIN")
-stlrace80 %>%
-  select(year, county, tractID, countyID, white80, black80, other80, geometry) -> stlrace80
+stlrace90 <- left_join(stl80, race80, by = "GISJOIN")
+stlrace90 %>%
+  select(year, county, tractID, countyID, white80, black80, other80, geometry) -> stlrace90
 
 # interpolate to 2010 census tract
 stl_tract10 %>%
