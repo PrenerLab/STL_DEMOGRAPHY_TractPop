@@ -335,51 +335,27 @@ rm(stl80, stlpop80, tract80)
 ### 1990
 
 ```{r}
-# read in tract level population estimates
-read_csv(here("data", "raw", "IPUMS", "nhgis0017_ds120_1990_tract.csv")) %>%
-  filter(STATE == "Missouri") %>%
-  filter(COUNTY == "St Louis" | COUNTY == "St Louis City") -> pop90
-
-# clean up data
-pop90 %>%
-  filter(STATE == "Missouri") %>%
-  filter(COUNTY == "St Louis" | COUNTY == "St Louis City") %>%
-  select(-STATE, -STATEA, -CTY_SUBA,
-         -PLACEA, -BLOCKA, -ANRCA, -AIANHHA, -RES_ONLYA, -RES_TRSTA,
-         -TRUSTA, -BLCK_GRPA, -CDA, -C_CITYA, -DIVISIONA, -MSA_CMSAA, 
-         -PMSAA, -REGIONA, -URBRURALA, -URB_AREAA, 
-         -CD103A, -ANPSADPI, -EUY001, -EUY002, -EUY003, -EUY004, -EUY005) %>%
-  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
-  rename(countyID = county,
-         year = YEAR,
-         county = COUNTY,
-         pop90 = ET1001) -> pop90 
-  
-# clean
-pop90 %>%
-  select(-COUNTYA) %>%
-  select(year, county, TRACTA, countyID, pop90, GISJOIN) %>%
-  rename(tractID = TRACTA) -> pop90
-
 # read in 1990 census counts, clean
 get_decennial(geography = "tract", variable = "P0010001", year = 1990, state = 29, county = 510, geometry = TRUE) %>%
   st_transform(crs = 26915) %>%
-  select(GEOID, value) %>%
-  rename(pop90 = value) -> stlcity90
+  select(GEOID, value, NAME) %>%
+  rename(pop90 = value, 
+         tract = NAME) -> stlcity90
 
 get_decennial(geography = "tract", variable = "P0010001", year = 1990, state = 29, county = 189, geometry = TRUE) %>%
   st_transform(crs = 26915) %>%
-  select(GEOID, value) %>%
-  rename(pop90 = value) -> stlcounty90
+  select(GEOID, value, NAME) %>%
+  rename(pop90 = value,
+         tract = NAME) -> stlcounty90
 
 rbind(stlcity90, stlcounty90) -> stlpop90
-stlpop90 <- left_join(stlpop90, pop90, by = "pop90")
+#stlpop90 <- left_join(stlpop90, pop90, by = "pop90")
 
 # interpolate to 2010 census tract
 stl_tract10 %>%
   st_transform(crs = 26915) %>%
   select(GEOID10) %>%
-  aw_interpolate(tid = GEOID10, source = stlpop90, sid = tractID,
+  aw_interpolate(tid = GEOID10, source = stlpop90, sid = tract,
                  weight = "sum", output = "tibble", 
                  extensive = "pop90") -> tract90
 
@@ -399,49 +375,27 @@ rm(stl90, stlpop90, tract90, stlcity90, stlcounty90)
 ### 2000
 
 ```{r}
-# read in tract level population estimates
-read_csv(here("data", "raw", "IPUMS", "nhgis0021_ds146_2000_tract.csv")) %>%
-  filter(STATE == "Missouri") %>%
-  filter(COUNTY == "St Louis" | COUNTY == "St Louis City") -> pop00
-
-# clean up data
-pop00 %>%
-  select(-STATE, -STATEA, -GISJOIN, -CTY_SUBA,
-         -PLACEA, -ANRCA, -AIANHHA, -RES_ONLYA,
-         -TRUSTA, -BLCK_GRPA, -C_CITYA, -DIVISIONA, -MSA_CMSAA, 
-         -PMSAA, -REGIONA, -URB_AREAA, -TRBL_CTA, -TRBL_BGA, -TRBL_SUBA,
-         -NECMAA, -CD106A, -CD108A, -CD109A, -ZIP3A, -ZCTAA, -NAME) %>%
-  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
-  rename(countyID = county,
-         year = YEAR,
-         county = COUNTY,
-         pop00 = FL5001) -> pop00 
-
-# clean
-pop00 %>%
-  select(-COUNTYA) %>%
-  select(year, county, TRACTA, countyID, pop00) %>%
-  rename(tractID = TRACTA) -> pop00
-
 # read in 2000 census counts, clean
 get_decennial(geography = "tract", variable = "P001001", year = 2000, state = 29, county = 510, geometry = TRUE) %>%
   st_transform(crs = 26915) %>%
-  select(GEOID, value) %>%
-  rename(pop00 = value) -> stlcity00
+  select(GEOID, value, NAME) %>%
+  rename(pop00 = value,
+         tract = NAME) -> stlcity00
 
 get_decennial(geography = "tract", variable = "P001001", year = 2000, state = 29, county = 189, geometry = TRUE) %>%
   st_transform(crs = 26915) %>%
-  select(GEOID, value) %>%
-  rename(pop00 = value) -> stlcounty00
+  select(GEOID, value, NAME) %>%
+  rename(pop00 = value,
+         tract = NAME) -> stlcounty00
 
 rbind(stlcity00, stlcounty00) -> stlpop00
-stlpop00 <- left_join(stlpop00, pop00, by = "pop00")
+#stlpop00 <- left_join(stlpop00, pop00, by = "pop00")
 
 # interpolate to 2010 census tract
 stl_tract10 %>%
   st_transform(crs = 26915) %>%
   select(GEOID10) %>%
-  aw_interpolate(tid = GEOID10, source = stlpop00, sid = tractID,
+  aw_interpolate(tid = GEOID10, source = stlpop00, sid = tract,
                  weight = "sum", output = "tibble", 
                  extensive = "pop00") -> tract00
 
@@ -461,43 +415,24 @@ rm(stl00, stlpop00, tract00, stlcity00, stlcounty00)
 ### 2010
 
 ```{r}
-# read in tract level population estimates
-read_csv(here("data", "raw", "IPUMS", "nhgis0022_ds172_2010_tract.csv")) %>%
-  filter(STATE == "Missouri") %>%
-  filter(COUNTY == "St. Louis County" | COUNTY == "St. Louis city") -> pop10
-
-# clean up data
-pop10 %>%
-  select(-GISJOIN, -STATE, -STATEA, -PLACEA, -ANRCA, -AIANHHA, -RES_ONLYA,
-         -TRUSTA, -DIVISIONA, -REGIONA, -NAME, -COUSUBA, -BLKGRPA, -BLOCKA, -CONCITA, -AITSCEA,
-          -TTRACTA, -TBLKGRPA, -CBSAA, -METDIVA, -CSAA, -NECTAA, -NECTADIVA, -CNECTAA, -UAA, -URBRURALA, 
-         -CDA, -SLDUA, -SLDLA, -ZCTA5A, -SUBMCDA, -SDELMA, -SDSECA, -SDUNIA, -SABINSA) %>%
-  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
-  rename(countyID = county,
-         year = YEAR,
-         county = COUNTY,
-         pop10 = H7V001) -> pop10
-
-# clean
-pop10 %>%
-  select(-COUNTYA) %>%
-  select(year, county, TRACTA, countyID, pop10) %>%
-  rename(tractID = TRACTA) -> pop10
-
+# read in census counts
 get_decennial(geography = "tract", variable = "P001001", year = 2010, state = 29, county = 510, geometry = TRUE) %>%
   st_transform(crs = 26915) %>%
-  select(GEOID, value) %>%
-  rename(pop10 = value) -> stlcity10
+  select(GEOID, value, NAME) %>%
+  rename(pop10 = value,
+         tract = NAME) -> stlcity10
 
 get_decennial(geography = "tract", variable = "P001001", year = 2010, state = 29, county = 189, geometry = TRUE) %>%
   st_transform(crs = 26915) %>%
-  select(GEOID, value) %>%
-  rename(pop10 = value) -> stlcounty10
+  select(GEOID, value, NAME) %>%
+  rename(pop10 = value,
+         tract = NAME) -> stlcounty10
 
 rbind(stlcity10, stlcounty10) -> stlpop10
-stlpop10 <- left_join(stlpop10, pop10, by = "pop10")
+#stlpop10 <- left_join(stlpop10, pop10, by = "pop10")
 
 # clean up data frame
+stlpop10$year <- rep(2010, nrow(stlpop10)) # adds a year column
 st_geometry(stlpop10) <- NULL
 stlpop10 %>%
   select(year, GEOID, pop10) %>%
@@ -510,29 +445,6 @@ rm(stlpop10, stlcity10, stlcounty10)
 ### 2011
 
 ```{r}
-# read in tract level population estimates
-read_csv(here("data", "raw", "IPUMS", "nhgis0023_ds184_20115_2011_tract.csv")) %>%
-  filter(STATE == "Missouri") %>%
-  filter(COUNTY == "St. Louis County" | COUNTY == "St. Louis city") -> pop11
-
-# clean up data
-pop11 %>%
-  select(YEAR, COUNTYA, COUNTY, TRACTA, MNTE001) %>%
-  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
-  rename(countyID = county,
-         year = YEAR,
-         county = COUNTY,
-         pop11 = MNTE001) -> pop11 
-
-# clean
-pop11 %>%
-  select(-COUNTYA) %>%
-  select(year, county, TRACTA, countyID, pop11) %>%
-  rename(tractID = TRACTA) -> pop11
-
-# remove excess years in year column
-str_replace_all(pop11$year, "2007-", "") -> pop11$year
-
 # read in 2011 census counts
 get_acs(geography = "tract", year = 2011, variables = "B01003_001", state = 29, county = 510) %>%
   select(GEOID, estimate, moe) %>%
@@ -545,10 +457,10 @@ get_acs(geography = "tract", year = 2011, variables = "B01003_001", state = 29, 
          pop11_m = moe) -> stlcounty11
 
 rbind(stlcity11, stlcounty11) -> stlpop11
-stlpop11 <- left_join(stlpop11, pop11, by = "pop11")
+#stlpop11 <- left_join(stlpop11, pop11, by = "pop11")
 
 # clean up data frame
-#st_geometry(stlpop11) <- NULL
+stlpop11$year <- rep(2011, nrow(stlpop11)) # adds a year column
 stlpop11 %>%
   select(year, GEOID, pop11) %>%
   rename(population = pop11) -> pop11
@@ -560,29 +472,6 @@ rm(stlpop11, stlcity11, stlcounty11)
 ### 2012
 
 ```{r}
-# read in tract level population estimates
-read_csv(here("data", "raw", "IPUMS", "nhgis0024_ds191_20125_2012_tract.csv")) %>%
-  filter(STATE == "Missouri") %>%
-  filter(COUNTY == "St. Louis County" | COUNTY == "St. Louis city") -> pop12
-
-# clean up data
-pop12 %>%
-  select(YEAR, COUNTYA, COUNTY, TRACTA, QSPE001) %>%
-  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
-  rename(countyID = county,
-         year = YEAR,
-         county = COUNTY,
-         pop12 = QSPE001) -> pop12 
-
-# clean
-pop12 %>%
-  select(-COUNTYA) %>%
-  select(year, county, TRACTA, countyID, pop12) %>%
-  rename(tractID = TRACTA) -> pop12
-
-# remove excess years in year column
-str_replace_all(pop12$year, "2008-", "") -> pop12$year
-
 # read in 2012 census counts
 get_acs(geography = "tract", year = 2012, variables = "B01003_001", state = 29, county = 510) %>%
   select(GEOID, estimate, moe) %>%
@@ -595,10 +484,10 @@ get_acs(geography = "tract", year = 2012, variables = "B01003_001", state = 29, 
          pop12_m = moe) -> stlcounty12
 
 rbind(stlcity12, stlcounty12) -> stlpop12
-stlpop12 <- left_join(stlpop12, pop12, by = "pop12")
+#stlpop12 <- left_join(stlpop12, pop12, by = "pop12")
 
 # clean up data frame
-#st_geometry(stlpop11) <- NULL
+stlpop12$year <- rep(2012, nrow(stlpop12)) # adds a year column
 stlpop12 %>%
   select(year, GEOID, pop12) %>% 
   rename(population = pop12) -> pop12
@@ -610,29 +499,6 @@ rm(stlpop12, stlcity12, stlcounty12)
 ### 2013
 
 ```{r}
-# read in tract level population estimates
-read_csv(here("data", "raw", "IPUMS", "nhgis0025_ds201_20135_2013_tract.csv")) %>%
-  filter(STATE == "Missouri") %>%
-  filter(COUNTY == "St. Louis County" | COUNTY == "St. Louis city") -> pop13
-
-# clean up data
-pop13 %>%
-  select(YEAR, COUNTYA, COUNTY, TRACTA, UEPE001) %>%
-  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
-  rename(countyID = county,
-         year = YEAR,
-         county = COUNTY,
-         pop13 = UEPE001) -> pop13 
-
-# clean
-pop13 %>%
-  select(-COUNTYA) %>%
-  select(year, county, TRACTA, countyID, pop13) %>%
-  rename(tractID = TRACTA) -> pop13
-
-# remove excess years in year column
-str_replace_all(pop13$year, "2009-", "") -> pop13$year
-
 # read in 2013 census counts
 get_acs(geography = "tract", year = 2013, variables = "B01003_001", state = 29, county = 510) %>%
   select(GEOID, estimate, moe) %>%
@@ -645,10 +511,10 @@ get_acs(geography = "tract", year = 2013, variables = "B01003_001", state = 29, 
          pop13_m = moe) -> stlcounty13
 
 rbind(stlcity13, stlcounty13) -> stlpop13
-stlpop13 <- left_join(stlpop13, pop13, by = "pop13")
+#stlpop13 <- left_join(stlpop13, pop13, by = "pop13")
 
 # clean up data frame
-#st_geometry(stlpop11) <- NULL
+stlpop13$year <- rep(2013, nrow(stlpop13)) # adds a year column
 stlpop13 %>%
   select(year, GEOID, pop13) %>%
   rename(population = pop13) -> pop13
@@ -660,29 +526,6 @@ rm(stlpop13, stlcity13, stlcounty13)
 ### 2014
 
 ```{r}
-# read in tract level population estimates
-read_csv(here("data", "raw", "IPUMS", "nhgis0026_ds206_20145_2014_tract.csv")) %>%
-  filter(STATE == "Missouri") %>%
-  filter(COUNTY == "St. Louis County" | COUNTY == "St. Louis city") -> pop14
-
-# clean up data
-pop14 %>%
-  select(YEAR, COUNTYA, COUNTY, TRACTA, ABA1E001) %>%
-  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
-  rename(countyID = county,
-         year = YEAR,
-         county = COUNTY,
-         pop14 = ABA1E001) -> pop14
-
-# clean
-pop14 %>%
-  select(-COUNTYA) %>%
-  select(year, county, TRACTA, countyID, pop14) %>%
-  rename(tractID = TRACTA) -> pop14
-
-# remove excess years in year column
-str_replace_all(pop14$year, "2010-", "") -> pop14$year
-
 # read in 2014 census counts
 get_acs(geography = "tract", year = 2014, variables = "B01003_001", state = 29, county = 510) %>%
   select(GEOID, estimate, moe) %>%
@@ -695,10 +538,10 @@ get_acs(geography = "tract", year = 2014, variables = "B01003_001", state = 29, 
          pop14_m = moe) -> stlcounty14
 
 rbind(stlcity14, stlcounty14) -> stlpop14
-stlpop14 <- left_join(stlpop14, pop14, by = "pop14")
+#stlpop14 <- left_join(stlpop14, pop14, by = "pop14")
 
 # clean up data frame
-#st_geometry(stlpop11) <- NULL
+stlpop14$year <- rep(2014, nrow(stlpop14)) # adds a year column
 stlpop14 %>%
   select(year, GEOID, pop14) %>%
   rename(population = pop14) -> pop14
@@ -710,29 +553,6 @@ rm(stlpop14, stlcity14, stlcounty14)
 ### 2015
 
 ```{r}
-# read in tract level population estimates
-read_csv(here("data", "raw", "IPUMS", "nhgis0027_ds215_20155_2015_tract.csv")) %>%
-  filter(STATE == "Missouri") %>%
-  filter(COUNTY == "St. Louis County" | COUNTY == "St. Louis city") -> pop15
-
-# clean up data
-pop15 %>%
-  select(YEAR, COUNTYA, COUNTY, TRACTA, ADKWE001) %>%
-  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
-  rename(countyID = county,
-         year = YEAR,
-         county = COUNTY,
-         pop15 = ADKWE001) -> pop15
-
-# clean
-pop15 %>%
-  select(-COUNTYA) %>%
-  select(year, county, TRACTA, countyID, pop15) %>%
-  rename(tractID = TRACTA) -> pop15
-
-# remove excess years in year column
-str_replace_all(pop15$year, "2011-", "") -> pop15$year
-
 # read in 2015 census counts
 get_acs(geography = "tract", year = 2015, variables = "B01003_001", state = 29, county = 510) %>%
   select(GEOID, estimate, moe) %>%
@@ -745,10 +565,10 @@ get_acs(geography = "tract", year = 2015, variables = "B01003_001", state = 29, 
          pop15_m = moe) -> stlcounty15
 
 rbind(stlcity15, stlcounty15) -> stlpop15
-stlpop15 <- left_join(stlpop15, pop15, by = "pop15")
+#stlpop15 <- left_join(stlpop15, pop15, by = "pop15")
 
 # clean up data frame
-#st_geometry(stlpop11) <- NULL
+stlpop15$year <- rep(2015, nrow(stlpop15)) # adds a year column
 stlpop15 %>%
   select(year, GEOID, pop15) %>%
   rename(population = pop15) -> pop15
@@ -760,29 +580,6 @@ rm(stlpop15, stlcity15, stlcounty15)
 ### 2016
 
 ```{r}
-# read in tract level population estimates
-read_csv(here("data", "raw", "IPUMS", "nhgis0028_ds225_20165_2016_tract.csv")) %>%
-  filter(STATE == "Missouri") %>%
-  filter(COUNTY == "St. Louis County" | COUNTY == "St. Louis city") -> pop16
-
-# clean up data
-pop16 %>%
-  select(YEAR, COUNTYA, COUNTY, TRACTA, AF2LE001) %>%
-  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
-  rename(countyID = county,
-         year = YEAR,
-         county = COUNTY,
-         pop16 = AF2LE001) -> pop16
-
-# clean
-pop16 %>%
-  select(-COUNTYA) %>%
-  select(year, county, TRACTA, countyID, pop16) %>%
-  rename(tractID = TRACTA) -> pop16
-
-# remove excess years in year column
-str_replace_all(pop16$year, "2012-", "") -> pop16$year
-
 # read in 2016 census counts
 get_acs(geography = "tract", year = 2016, variables = "B01003_001", state = 29, county = 510) %>%
   select(GEOID, estimate, moe) %>%
@@ -795,10 +592,10 @@ get_acs(geography = "tract", year = 2016, variables = "B01003_001", state = 29, 
          pop16_m = moe) -> stlcounty16
 
 rbind(stlcity16, stlcounty16) -> stlpop16
-stlpop16 <- left_join(stlpop16, pop16, by = "pop16")
+#stlpop16 <- left_join(stlpop16, pop16, by = "pop16")
 
 # clean up data frame
-#st_geometry(stlpop11) <- NULL
+stlpop16$year <- rep(2016, nrow(stlpop16)) # adds a year column
 stlpop16 %>%
   select(year, GEOID, pop16) %>%
   rename(population = pop16) -> pop16
@@ -810,29 +607,6 @@ rm(stlpop16, stlcity16, stlcounty16)
 ### 2017
 
 ```{r}
-# read in tract level population estimates
-read_csv(here("data", "raw", "IPUMS", "nhgis0029_ds233_20175_2017_tract.csv")) %>%
-  filter(STATE == "Missouri") %>%
-  filter(COUNTY == "St. Louis County" | COUNTY == "St. Louis city") -> pop17
-
-# clean up data
-pop17 %>%
-  select(YEAR, COUNTYA, COUNTY, TRACTA, AHY1E001) %>%
-  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
-  rename(countyID = county,
-         year = YEAR,
-         county = COUNTY,
-         pop17 = AHY1E001) -> pop17
-
-# clean
-pop17 %>%
-  select(-COUNTYA) %>%
-  select(year, county, TRACTA, countyID, pop17) %>%
-  rename(tractID = TRACTA) -> pop17
-
-# remove excess years in year column
-str_replace_all(pop17$year, "2013-", "") -> pop17$year
-
 # read in 2017 census counts
 get_acs(geography = "tract", year = 2017, variables = "B01003_001", state = 29, county = 510) %>%
   select(GEOID, estimate, moe) %>%
@@ -845,10 +619,10 @@ get_acs(geography = "tract", year = 2017, variables = "B01003_001", state = 29, 
          pop17_m = moe) -> stlcounty17
 
 rbind(stlcity17, stlcounty17) -> stlpop17
-stlpop17 <- left_join(stlpop17, pop17, by = "pop17")
+#stlpop17 <- left_join(stlpop17, pop17, by = "pop17")
 
 # clean up data frame
-#st_geometry(stlpop11) <- NULL
+stlpop17$year <- rep(2017, nrow(stlpop17)) # adds a year column
 stlpop17 %>%
   select(year, GEOID, pop17) %>%
   rename(population = pop17) -> pop17
@@ -868,4 +642,8 @@ rbind(pop40, pop50,
       pop12, pop13, 
       pop14, pop15, 
       pop16, pop17) -> stl_population
+
+# rename population column to match race column
+stl_population %>%
+  rename(value = population) -> stl_population
 ```
