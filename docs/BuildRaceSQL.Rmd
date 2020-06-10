@@ -120,7 +120,8 @@ race40 %>%
   pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race40
 race40$year <- rep(1940, nrow(race40)) # adds a year column
 race40 %>%
-  select(year, GEOID, race, count) -> race40
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race40
 
 # clean up environment
 rm(tract_white40, tract_black40, stl40, stlrace40, white40, black40)
@@ -185,7 +186,8 @@ race50 %>%
   pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race50
 race50$year <- rep(1950, nrow(race50)) # adds a year column
 race50 %>%
-  select(year, GEOID, race, count) -> race50
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race50
 
 # clean up environment
 rm(tract50, stl50, stlrace50)
@@ -250,7 +252,8 @@ race60 %>%
   pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race60
 race60$year <- rep(1960, nrow(race60)) # adds a year column
 race60 %>%
-  select(year, GEOID, race, count) -> race60
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race60
 
 # clean up environment
 rm(tract60, stl60, stlrace60)
@@ -313,7 +316,8 @@ race70 %>%
   pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race70
 race70$year <- rep(1970, nrow(race70)) # adds a year column
 race70 %>%
-  select(year, GEOID, race, count) -> race70
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race70
 
 # clean up environment
 rm(tract70, stl70, stlrace70)
@@ -376,7 +380,8 @@ race80 %>%
   pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race80
 race80$year <- rep(1980, nrow(race80)) # adds a year column
 race80 %>%
-  select(year, GEOID, race, count) -> race80
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race80
 
 # clean up environment
 rm(tract80, stl80, stlrace80)
@@ -385,52 +390,30 @@ rm(tract80, stl80, stlrace80)
 ### 1990 
 
 ```{r}
-# read in tract level population estimates
-read_csv(here("data", "raw", "IPUMS", "race", "nhgis0030_ds120_1990_tract.csv")) -> race90
-
-# clean up raw data
-race90 %>%
-  filter(STATE == "Missouri") %>%
-  filter(COUNTY == "St Louis" | COUNTY == "St Louis City") %>%
-  select(-STATE, -STATEA, -CTY_SUBA,
-         -PLACEA, -BLOCKA, -ANRCA, -AIANHHA, -RES_ONLYA, -RES_TRSTA,
-         -TRUSTA, -BLCK_GRPA, -CDA, -C_CITYA, -DIVISIONA, -MSA_CMSAA, 
-         -PMSAA, -REGIONA, -URBRURALA, -URB_AREAA, 
-         -CD103A, -ANPSADPI) %>%
-  mutate(county = paste0(COUNTYA, "-", TRACTA)) %>%
-  rename(countyID = county,
-         year = YEAR,
-         county = COUNTY,
-         white90 = EUY001,
-         black90 = EUY002) -> race90 
-
-# clean
-race90 %>%
-  select(-COUNTYA) %>%
-  select(year, county, TRACTA, countyID, white90, black90) %>%
-  rename(tractID = TRACTA) -> race90
-
-# white
+# read in tract level race estimates - white
 get_decennial(geography = "tract", variables = "P0060001", state = 29, county = c(510, 189), year = 1990, geometry = TRUE) %>%
   st_transform(crs = 26915) %>%
-  select(GEOID, value) %>%
-  rename(white90 = value) -> white90
+  select(GEOID, value, NAME) %>%
+  rename(white90 = value,
+         tract = NAME) -> white90
 
-# black 
+# read in tract level race estimates - black
 get_decennial(geography = "tract", variables = "P0060002", state = 29, county = c(510, 189), year = 1990, geometry = FALSE) %>% 
-  select(GEOID, value) %>%
-  rename(black90 = value) -> black90
+  select(GEOID, value, NAME) %>%
+  rename(black90 = value,
+         tract = NAME) -> black90
 
 # combine
 stl90 <- left_join(white90, black90, by = "GEOID")
-#st_geometry(stl90) <- NULL
-#stlrace90 <- left_join(stl90, race90, by = "black90")
+stl90 %>%
+  select(-tract.x) %>%
+  rename(tract = tract.y) -> stl90
 
 # interpolate to 2010 census tract
 stl_tract10 %>%
   st_transform(crs = 26915) %>%
   select(GEOID10) %>%
-  aw_interpolate(tid = GEOID10, source = race90, sid = tractID,
+  aw_interpolate(tid = GEOID10, source = stl90, sid = tract,
                  weight = "sum", output = "tibble", 
                  extensive = c("white90", 
                                "black90")) -> tract90
@@ -448,17 +431,377 @@ race90 %>%
   pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race90
 race90$year <- rep(1990, nrow(race90)) # adds a year column
 race90 %>%
-  select(year, GEOID, race, count) -> race90
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race90
 
 # clean up environment
-rm(tract90, stl90, stlrace90, stlcity90, stlcounty90)
+rm(tract90, stl90, stlrace90, stlcity90, stlcounty90, white90, black90)
 ```
 
+### 2000
 
+```{r}
+# read in tract level race estimates - white
+get_decennial(geography = "tract", variables = "P003003", state = 29, county = c(510, 189), year = 2000, geometry = TRUE) %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID, value, NAME) %>%
+  rename(white00 = value,
+         tract = NAME) -> white00
 
+# read in tract level race estimates - black
+get_decennial(geography = "tract", variables = "P003004", state = 29, county = c(510, 189), year = 2000, geometry = FALSE) %>% 
+  select(GEOID, value, NAME) %>%
+  rename(black00 = value,
+         tract = NAME) -> black00
 
+# combine
+stl00 <- left_join(white00, black00, by = "GEOID")
+stl00 %>%
+  select(-tract.x) %>%
+  rename(tract = tract.y) -> stl00
 
+# interpolate to 2010 census tract
+stl_tract10 %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID10) %>%
+  aw_interpolate(tid = GEOID10, source = stl00, sid = tract,
+                 weight = "sum", output = "tibble", 
+                 extensive = c("white00", 
+                               "black00")) -> tract00
 
+# clean up data frame
+tract00 %>%
+  select(GEOID10, white00, black00) %>%
+  rename(GEOID = GEOID10,
+         white = white00,
+         black = black00) %>%
+  na.omit() -> race00
 
+# pivot race column from wide to long
+race00 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race00
+race00$year <- rep(2000, nrow(race00)) # adds a year column
+race00 %>%
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race00
 
+# clean up environment
+rm(tract00, stl00, stlrace00, white00, black00)
+```
 
+### 2010
+
+```{r}
+# read in tract level race estimates - white
+get_decennial(geography = "tract", variables = "P003002", state = 29, county = c(510, 189), year = 2010, geometry = TRUE) %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID, value, NAME) %>%
+  rename(white10 = value,
+         tract = NAME) -> white10
+
+# read in tract level race estimates - black
+get_decennial(geography = "tract", variables = "P003003", state = 29, county = c(510, 189), year = 2010, geometry = FALSE) %>% 
+  select(GEOID, value, NAME) %>%
+  rename(black10 = value,
+         tract = NAME) -> black10
+
+# combine
+stl10 <- left_join(white10, black10, by = "GEOID")
+stl10 %>%
+  select(-tract.x) %>%
+  rename(tract = tract.y) -> stl10
+
+# clean up data frame
+stl10 %>%
+  select(GEOID, white10, black10) %>%
+  rename(white = white10,
+         black = black10) %>%
+  na.omit() -> race10
+st_geometry(race10) <- NULL
+
+# pivot race column from wide to long
+race10 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race10
+race10$year <- rep(2010, nrow(race10)) # adds a year column
+race10 %>%
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race10
+
+# clean up environment
+rm(stl10, white10, black10)
+```
+
+### 2011
+
+```{r}
+# read in tract level race estimates - white
+get_acs(geography = "tract", variables = "B02001_002", state = 29, county = c(510, 189), year = 2011, geometry = TRUE) %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID, estimate) %>%
+  rename(white11 = estimate) -> white11
+
+# read in tract level race estimates - black
+get_acs(geography = "tract", variables = "B02001_003", state = 29, county = c(510, 189), year = 2011, geometry = FALSE) %>% 
+  select(GEOID, estimate) %>%
+  rename(black11 = estimate) -> black11
+
+# combine
+stl11 <- left_join(white11, black11, by = "GEOID")
+
+# clean up data frame
+stl11 %>%
+  select(GEOID, white11, black11) %>%
+  rename(white = white11,
+         black = black11) %>%
+  na.omit() -> race11
+st_geometry(race11) <- NULL
+
+# pivot race column from wide to long
+race11 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race11
+race11$year <- rep(2011, nrow(race11)) # adds a year column
+race11 %>%
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race11
+
+# clean up environment
+rm(stl11, white11, black11)
+```
+
+### 2012
+
+```{r}
+# read in tract level race estimates - white
+get_acs(geography = "tract", variables = "B02001_002", state = 29, county = c(510, 189), year = 2012, geometry = TRUE) %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID, estimate) %>%
+  rename(white12 = estimate) -> white12
+
+# read in tract level race estimates - black
+get_acs(geography = "tract", variables = "B02001_003", state = 29, county = c(510, 189), year = 2012, geometry = FALSE) %>% 
+  select(GEOID, estimate) %>%
+  rename(black12 = estimate) -> black12
+
+# combine
+stl12 <- left_join(white12, black12, by = "GEOID")
+
+# clean up data frame
+stl12 %>%
+  select(GEOID, white12, black12) %>%
+  rename(white = white12,
+         black = black12) %>%
+  na.omit() -> race12
+st_geometry(race12) <- NULL
+
+# pivot race column from wide to long
+race12 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race12
+race12$year <- rep(2012, nrow(race12)) # adds a year column
+race12 %>%
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race12
+
+# clean up environment
+rm(stl12, white12, black12)
+```
+
+### 2013
+
+```{r}
+# read in tract level race estimates - white
+get_acs(geography = "tract", variables = "B02001_002", state = 29, county = c(510, 189), year = 2013, geometry = TRUE) %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID, estimate) %>%
+  rename(white13 = estimate) -> white13
+
+# read in tract level race estimates - black
+get_acs(geography = "tract", variables = "B02001_003", state = 29, county = c(510, 189), year = 2013, geometry = FALSE) %>% 
+  select(GEOID, estimate) %>%
+  rename(black13 = estimate) -> black13
+
+# combine
+stl13 <- left_join(white13, black13, by = "GEOID")
+
+# clean up data frame
+stl13 %>%
+  select(GEOID, white13, black13) %>%
+  rename(white = white13,
+         black = black13) %>%
+  na.omit() -> race13
+st_geometry(race13) <- NULL
+
+# pivot race column from wide to long
+race13 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race13
+race13$year <- rep(2013, nrow(race13)) # adds a year column
+race13 %>%
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race13
+
+# clean up environment
+rm(stl13, white13, black13)
+```
+
+### 2014
+
+```{r}
+# read in tract level race estimates - white
+get_acs(geography = "tract", variables = "B02001_002", state = 29, county = c(510, 189), year = 2014, geometry = TRUE) %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID, estimate) %>%
+  rename(white14 = estimate) -> white14
+
+# read in tract level race estimates - black
+get_acs(geography = "tract", variables = "B02001_003", state = 29, county = c(510, 189), year = 2014, geometry = FALSE) %>% 
+  select(GEOID, estimate) %>%
+  rename(black14 = estimate) -> black14
+
+# combine
+stl14 <- left_join(white14, black14, by = "GEOID")
+
+# clean up data frame
+stl14 %>%
+  select(GEOID, white14, black14) %>%
+  rename(white = white14,
+         black = black14) %>%
+  na.omit() -> race14
+st_geometry(race14) <- NULL
+
+# pivot race column from wide to long
+race14 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race14
+race14$year <- rep(2014, nrow(race14)) # adds a year column
+race14 %>%
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race14
+
+# clean up environment
+rm(stl14, white14, black14)
+```
+
+### 2015
+
+```{r}
+# read in tract level race estimates - white
+get_acs(geography = "tract", variables = "B02001_002", state = 29, county = c(510, 189), year = 2015, geometry = TRUE) %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID, estimate) %>%
+  rename(white15 = estimate) -> white15
+
+# read in tract level race estimates - black
+get_acs(geography = "tract", variables = "B02001_003", state = 29, county = c(510, 189), year = 2015, geometry = FALSE) %>% 
+  select(GEOID, estimate) %>%
+  rename(black15 = estimate) -> black15
+
+# combine
+stl15 <- left_join(white15, black15, by = "GEOID")
+
+# clean up data frame
+stl15 %>%
+  select(GEOID, white15, black15) %>%
+  rename(white = white15,
+         black = black15) %>%
+  na.omit() -> race15
+st_geometry(race15) <- NULL
+
+# pivot race column from wide to long
+race15 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race15
+race15$year <- rep(2015, nrow(race15)) # adds a year column
+race15 %>%
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race15
+
+# clean up environment
+rm(stl15, white15, black15)
+```
+
+### 2016
+
+```{r}
+# read in tract level race estimates - white
+get_acs(geography = "tract", variables = "B02001_002", state = 29, county = c(510, 189), year = 2016, geometry = TRUE) %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID, estimate) %>%
+  rename(white16 = estimate) -> white16
+
+# read in tract level race estimates - black
+get_acs(geography = "tract", variables = "B02001_003", state = 29, county = c(510, 189), year = 2016, geometry = FALSE) %>% 
+  select(GEOID, estimate) %>%
+  rename(black16 = estimate) -> black16
+
+# combine
+stl16 <- left_join(white16, black16, by = "GEOID")
+
+# clean up data frame
+stl16 %>%
+  select(GEOID, white16, black16) %>%
+  rename(white = white16,
+         black = black16) %>%
+  na.omit() -> race16
+st_geometry(race16) <- NULL
+
+# pivot race column from wide to long
+race16 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race16
+race16$year <- rep(2016, nrow(race16)) # adds a year column
+race16 %>%
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race16
+
+# clean up environment
+rm(stl16, white16, black16)
+```
+
+### 2017
+
+```{r}
+# read in tract level race estimates - white
+get_acs(geography = "tract", variables = "B02001_002", state = 29, county = c(510, 189), year = 2017, geometry = TRUE) %>%
+  st_transform(crs = 26915) %>%
+  select(GEOID, estimate) %>%
+  rename(white17 = estimate) -> white17
+
+# read in tract level race estimates - black
+get_acs(geography = "tract", variables = "B02001_003", state = 29, county = c(510, 189), year = 2017, geometry = FALSE) %>% 
+  select(GEOID, estimate) %>%
+  rename(black17 = estimate) -> black17
+
+# combine
+stl17 <- left_join(white17, black17, by = "GEOID")
+
+# clean up data frame
+stl17 %>%
+  select(GEOID, white17, black17) %>%
+  rename(white = white17,
+         black = black17) %>%
+  na.omit() -> race17
+st_geometry(race17) <- NULL
+
+# pivot race column from wide to long
+race17 %>%
+  pivot_longer(-GEOID, names_to = "race", values_to = "count") -> race17
+race17$year <- rep(2017, nrow(race17)) # adds a year column
+race17 %>%
+  select(year, GEOID, race, count) %>%
+  rename(value = race) -> race17
+
+# clean up environment
+rm(stl17, white17, black17)
+```
+
+### Combine data
+
+```{r}
+# combine all data to a single dataframe
+rbind(race40, race50, 
+      race60, race80, 
+      race90, race00, 
+      race10, race11, 
+      race12, race13, 
+      race14, race15, 
+      race16, race17) -> stl_race
+
+stl_race %>%
+  rename(estimate = count) ->stl_race
+```
