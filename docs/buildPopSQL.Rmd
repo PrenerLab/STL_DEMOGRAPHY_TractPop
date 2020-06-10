@@ -645,5 +645,5 @@ rbind(pop40, pop50,
 
 # rename population column to match race column
 stl_population %>%
-  rename(value = population) -> stl_population
+  rename(estimate = value) -> stl_population
 ```
