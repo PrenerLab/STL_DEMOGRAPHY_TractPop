@@ -20,10 +20,22 @@ copy_to(con, stl_population, "population",
         indexes = list(
           "year", 
           "GEOID",
-          "population"
+          "estimate"
         )
 )      
-      
+
+# write race table
+copy_to(con, stl_race, "race",
+        temporary = FALSE,
+        overwrite = TRUE,
+        indexes = list(
+          "year", 
+          "GEOID",
+          "value",
+          "estimate"
+        )
+)     
+
 # disconnect from database
 dbDisconnect(con)
  rm(con)
