@@ -405,9 +405,9 @@ get_decennial(geography = "tract", variables = "P0060002", state = 29, county = 
 
 # combine
 stl90 <- left_join(white90, black90, by = "GEOID")
-stl90 %>%
-  select(-tract.x) %>%
-  rename(tract = tract.y) -> stl90
+stl90 <- select(stl90, -tract.x)
+names(stl90)[names(stl90) == "tract.y"] <- "tract"
+# stl90 <- rename(stl90, tract = tract.y)
 
 # interpolate to 2010 census tract
 stl_tract10 %>%
@@ -456,9 +456,8 @@ get_decennial(geography = "tract", variables = "P003004", state = 29, county = c
 
 # combine
 stl00 <- left_join(white00, black00, by = "GEOID")
-stl00 %>%
-  select(-tract.x) %>%
-  rename(tract = tract.y) -> stl00
+stl00 <- select(stl00, -tract.x)
+names(stl00)[names(stl00) == "tract.y"] <- "tract"
 
 # interpolate to 2010 census tract
 stl_tract10 %>%
@@ -507,9 +506,8 @@ get_decennial(geography = "tract", variables = "P003003", state = 29, county = c
 
 # combine
 stl10 <- left_join(white10, black10, by = "GEOID")
-stl10 %>%
-  select(-tract.x) %>%
-  rename(tract = tract.y) -> stl10
+stl10 <- select(stl10, -tract.x)
+names(stl10)[names(stl10) == "tract.y"] <- "tract"
 
 # clean up data frame
 stl10 %>%
@@ -805,3 +803,24 @@ rbind(race40, race50,
 stl_race %>%
   rename(estimate = count) ->stl_race
 ```
+
+
+```{r}
+# connect to database
+# con <- dbConnect(RSQLite::SQLite(), "data/STL_CITY_COUNTY_Database.sqlite")
+
+# write race table
+copy_to(con, stl_race, "race",
+        temporary = FALSE,
+        overwrite = TRUE,
+        indexes = list(
+          "year", 
+          "GEOID",
+          "value",
+          "estimate"
+        )
+)     
+```
+
+
+
