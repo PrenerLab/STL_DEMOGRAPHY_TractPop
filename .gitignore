@@ -1,155 +1,80 @@
+# This is a .gitignore file that specifies for GitHub files that should
+# never be uploaded to your repositories.
+# More details - https://help.github.com/articles/ignoring-files/
+# Source - https://gist.github.com/octocat/9257657
 
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# OS generated files #
+######################
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# R files #
+###########
+# History files
 .Rhistory
-.Rproj.user/shared/notebooks/paths
-.Rproj.user/shared/notebooks/patch-chunk-names
-.Rproj.user/42964E1C/sources/prop/INDEX
-.Rproj.user/42964E1C/sources/prop/892E3D89
-.Rproj.user/42964E1C/sources/per/t/15BD8B41-contents
-.Rproj.user/42964E1C/sources/per/t/15BD8B41
-.Rproj.user/42964E1C/saved_source_markers
-.Rproj.user/42964E1C/rmd-outputs
-.Rproj.user/42964E1C/pcs/workbench-pane.pper
-.Rproj.user/42964E1C/pcs/windowlayoutstate.pper
-.Rproj.user/42964E1C/pcs/source-pane.pper
-.Rproj.user/42964E1C/pcs/files-pane.pper
+.Rapp.history
+
+# Session Data files
 .RData
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cyf7g9hcyzaxi/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cy57x0j8zzemt/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cwr60cysl1gn8/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cw1egb1bdp64o/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cus9pouivza6i/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/crv1s7gd5ujzo/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/croeggkwbhuto/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cps3cbzuqonsk/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cgwrznw0z4cbj/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cgbwllvc94v7i/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cg65nln3w52x0/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cf080dvg5qr8j/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/ccf2dme9mdo4f/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cbvue10u9ro8d/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c4821aqyka71f/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c47czq91yn8ef/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c2525osoxlfha/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c1hbuoly3zpra/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c0mn0vf54tqvv/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/42964E1C2054475E/chunks.json
-.Rproj.user/42964E1C/viewer-cache/3B80EE9E.Rdata
-.Rproj.user/42964E1C/sources/prop/4361B399
-.Rproj.user/42964E1C/sources/per/t/2C6D5BB5-contents
-.Rproj.user/42964E1C/sources/per/t/2C6D5BB5
-.Rproj.user/42964E1C/sources/per/t/1981912E-contents
-.Rproj.user/42964E1C/sources/per/t/1981912E
-data/raw/.DS_Store
-data/.DS_Store
-data/raw/.DS_Store
-data/raw/IPUMS/.DS_Store
-data/raw/IPUMS/.DS_Store
-data/raw/.DS_Store
-data/raw/IPUMS/.DS_Store
-data/raw/.DS_Store
-.Rproj.user/42964E1C/sources/per/t/E93B9B1F
-.Rproj.user/42964E1C/sources/per/t/E93B9B1F-contents
-.Rproj.user/42964E1C/sources/per/t/FCC1D428
-.Rproj.user/42964E1C/sources/per/t/FCC1D428-contents
-.Rproj.user/42964E1C/sources/prop/38E72C8D
-.Rproj.user/42964E1C/sources/prop/9F5F17E3
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/42964E1C22EA6DF/chunks.json
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/42964E1CC9A61DA2/chunks.json
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/c0xjfw6qu0adj/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/c5zrewea8mttg/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/chunks.json
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cubi0u33992tn/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cvg80rw905h1c/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cyiuakqqbnrtp/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/42964E1C22EA6DF/chunks.json
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/42964E1CE20312E8/chunks.json
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c1of4qi7oqc8z/000004.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c1ql0s0235f46/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c3cnkrnexstgt/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c5llsoax8hi18/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c92nn371cbp4c/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/caw8ktj6rkvps/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cb2mniec9fgw8/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cc4n7whfweqoo/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cgj58rzl08q2a/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cgklorc7v2ozr/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/chunks.json
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/ckynbru5ji91t/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cnjbslbhy8iiw/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/co2dga7ybv4wv/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cos4r008ok4xg/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cq3vne6d4wq7i/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/crq1wqh6neqzo/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cu19vpyd6otcm/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/cvz65z426xas3/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/czra1z5ey8exk/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/c154s6i388lx0/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/c2ilmoydahqgz/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/c49ojer33evta/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/c7thj4jfsljw0/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/c9kwhodu58b75/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/cdnegfjxdkkjn/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/cg5ml7bkn4vvw/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/ch2xfgdl9uf7e/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/ch34220lz57f2/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/ch52vys5j335l/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/chunks.json
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/ci8fm0qy604dh/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/cij99fqe5wwgu/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/ck16ok57p3w2m/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/cnhlou3ow0wbb/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/coryz6tib7u8l/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/cp64bxzzjyxiq/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/crjyyimtp7tdm/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/csiy3de10i7qo/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/ct3mhe15v1i14/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/cukphqv7any0u/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/cwr4fyb3frqsu/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/cy5nge0faji12/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/cz7t3vbx556ko/000002.csv
-.Rproj.user/shared/notebooks/702EFFFC-buildRace/1/s/cz9acmwi440ju/000002.csv
-data/raw/IPUMS/.DS_Store
-data/raw/.DS_Store
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/ct0518izxerra/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/crq1wqh6neqzo/000003.error
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c89vb8bxrtgbq/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c5llsoax8hi18/000004.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c1of4qi7oqc8z/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/42964E1CB4C6AE81/chunks.json
-.Rproj.user/42964E1C/viewer-cache/BF058AAF.Rdata
-.Rproj.user/42964E1C/sources/per/t/CB9D7AEA-contents
-.Rproj.user/42964E1C/sources/per/t/CB9D7AEA
-data/raw/.DS_Store
-data/raw/IPUMS/.DS_Store
-data/raw/IPUMS/.DS_Store
-.Rproj.user/42964E1C/sources/per/t/2358BF69
-.Rproj.user/42964E1C/sources/per/t/2358BF69-contents
-.Rproj.user/42964E1C/sources/per/t/866FB9FB
-.Rproj.user/42964E1C/sources/per/t/866FB9FB-contents
-.Rproj.user/42964E1C/viewer-cache/1B9C4C6C.Rdata
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/42964E1C42E10A48/chunks.json
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/c083lkg35gzur/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/c4nuhl6ue6sua/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/c8iz2ozfh952r/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/caxkphc7hsudd/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cceklut6022ta/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cfq8kgytjf2y4/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cgrvv3w9g932r/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/ciuzueza0olqk/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cj04ebmn5gac9/000006.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/clh9ekbh5y33s/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cm72du1bpoyyp/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cn55rnsx52j5e/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cnwe5xweviwg8/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/coq8ktx28ekse/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cpblry7n15n4m/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cw66odj0adhpm/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/cx0l92mydm8qh/000002.csv
-.Rproj.user/shared/notebooks/3468B15E-BuildRaceSQL/1/s/czpsesx5sqpkd/000002.csv
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/42964E1C42E10A48/chunks.json
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/c1of4qi7oqc8z/000003.error
-.Rproj.user/shared/notebooks/59D2D819-buildPopSQL/1/s/ccexv5klw2bzj/000002.csv
-data/raw/.DS_Store
-data/raw/IPUMS/.DS_Store
+.Ruserdata
+
+# Example code in package build process
+*-Ex.R
+
+# Output files from R CMD build
+/*.tar.gz
+
+# Output files from R CMD check
+/*.Rcheck/
+
+# RStudio files
+.Rproj.user/
+
+# produced vignettes
+vignettes/*.html
+vignettes/*.pdf
+
+# OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
+.httr-oauth
+
+# knitr and R markdown default cache directories
+/*_cache/
+/cache/
+
+# Temporary files created by R markdown
+*.utf8.md
+*.knit.md
 .Rproj.user
