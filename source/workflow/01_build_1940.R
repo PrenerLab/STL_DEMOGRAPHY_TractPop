@@ -3,6 +3,7 @@
 # load data ####
 pop <- read_csv(here("data", "raw", "IPUMS", "population", "nhgis0012_ds76_1940_tract.csv"))
 race <- read_csv(here("data", "raw", "IPUMS", "race", "nhgis0030_ds76_1940_tract.csv"))
+black <- read_csv(here("data", "raw", "IPUMS", "race", "nhgis0009_ds76_1940_tract.csv"))
 stl_tracts <- st_read(here("data", "spatial", "STL_DEMOGRAPHICS_tracts40", "STL_BOUNDARY_1940_tracts.geojson"),
                  stringsAsFactors = FALSE) %>%
   st_transform(crs = 26915) %>%
@@ -42,18 +43,27 @@ expect_equal(sum(pop$pop, na.rm = TRUE), sum(est_pop_40$pop, na.rm = TRUE))
 rm(pop)
 
 # wrangle population ####
-## clean up raw data
+## clean up raw data for white
 race %>%
   filter(STATE == "Missouri") %>%
   filter(COUNTY == "St Louis" | COUNTY == "St Louis City") %>%
   rename(
     year = YEAR,
     county = COUNTY,
-    white = BUQ001,
-    black = BUQ002
+    white = BUQ001
   ) %>%
-  select(year, GISJOIN, county, white, black) -> race
+  select(year, GISJOIN, county, white) -> race
 
+## clean up raw data for black
+black %>% 
+  filter(STATE == "Missouri") %>%
+  filter(COUNTY == "St Louis" | COUNTY == "St Louis City") %>%
+  rename(black = BVG001) %>%
+  select(GISJOIN, black) -> black
+
+## join white and black tables
+race <- left_join(race, black, by = "GISJOIN")
+  
 ## join to geometric data
 left_join(stl_tracts, race, by = "GISJOIN") %>%
   select(year, GISJOIN, county, white, black) %>%
@@ -76,4 +86,4 @@ expect_lte(sum(race$black, na.rm = TRUE) + sum(est_race_40$black, na.rm = TRUE),
            sum(est_pop_40$pop, na.rm = TRUE))
 
 ## clean-up
-rm(stl_tracts, race)
+rm(stl_tracts, race, black)
